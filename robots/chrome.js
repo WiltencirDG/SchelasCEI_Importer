@@ -3,8 +3,7 @@ const ceiCredentials = require('../credentials/cei.json')
 const state = require('./state.js')
 
 async function robot(){
-    
-    
+        
     const chrome = await openChrome()
     const page = await openNewPage(chrome)
     await navigateToCEI(page)

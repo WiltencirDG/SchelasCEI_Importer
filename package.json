@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/WiltencirDG/SchelasCEI_Importer#readme",
   "dependencies": {
+    "express": "^4.17.1",
     "puppeteer": "^3.3.0"
   }
 }
