@@ -44,6 +44,7 @@ async function robot(ceiCredentials){
             await page.waitForNavigation({timeout: 100000});
 
         }catch(error){
+            console.timeEnd('Took')
             console.log('> Sadly, B3 is unavailable right now. Please, try again soon!')
             throw new Error('unavailable')
         }
