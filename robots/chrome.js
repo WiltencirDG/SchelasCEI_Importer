@@ -1,8 +1,6 @@
 const puppeteer = require('puppeteer')
-const ceiCredentials = require('../credentials/cei.json')
-const state = require('./state.js')
 
-async function robot(){
+async function robot(ceiCredentials){
         
     const chrome = await openChrome()
     const page = await openNewPage(chrome)
@@ -11,10 +9,9 @@ async function robot(){
     await navigateToAssets(page)
     const brokers = await getAllBrokers(page)
     const assets = await fetchAssets(page, brokers)
-    state.save_raw(assets)
     const content = await organizeAssets(assets)
-    state.save(content)
     await closeChrome(chrome)
+    return content
 
     async function openChrome(){
         console.log('> Opening Google Chrome...')

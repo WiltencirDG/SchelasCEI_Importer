@@ -7,7 +7,6 @@ const robots = {
 async function start(){
 
     await robots.server()
-    await robots.scheduler()
     
 }
 

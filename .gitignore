@@ -105,6 +105,4 @@ dist
 
 # Credentials
 credentials/
-
-assets.json
-assets_raw.json
+files/
