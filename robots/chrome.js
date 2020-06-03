@@ -15,7 +15,10 @@ async function robot(ceiCredentials){
 
     async function openChrome(){
         console.log('> Opening Google Chrome...')
-        const chrome = await puppeteer.launch()
+        const chrome = await puppeteer.launch({'args' : [
+            '--no-sandbox',
+            '--disable-setuid-sandbox'
+          ]})
         return chrome
     }   
 
