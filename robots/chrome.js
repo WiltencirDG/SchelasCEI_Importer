@@ -144,6 +144,7 @@ async function robot(){
     }
 
     async function closeChrome(chrome){
+        console.log('Closing Google Chrome...')
         await chrome.close()
     }
 }
