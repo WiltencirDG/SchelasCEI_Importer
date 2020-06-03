@@ -48,7 +48,8 @@ async function robot(){
                     state.save_api(content,base64Credentials)
                     await scheduler()
                 }catch(error){
-                    return res.status(401).json({ message: 'Service unavailable. '+error });
+                    console.log(`Error: ${error}`)
+                    return res.status(401).json({ message: 'Service unavailable'});
                 }
             }
 
