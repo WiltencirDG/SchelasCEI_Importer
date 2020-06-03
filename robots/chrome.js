@@ -10,8 +10,8 @@ async function robot(){
     await navigateToCEI(page)
     await loginToCEI(page)
     await navigateToAssets(page)
-    const corretoras = await getAllCorretoras(page)
-    const assets = await fetchAssets(page, corretoras)
+    const brokers = await getAllBrokers(page)
+    const assets = await fetchAssets(page, brokers)
     state.save(assets)
     //await organizeAssets(assets)
     await closeChrome(chrome)
@@ -47,35 +47,35 @@ async function robot(){
         await page.goto('https://cei.b3.com.br/CEI_Responsivo/negociacao-de-ativos.aspx')
     }
     
-    async function getAllCorretoras(page){
-        console.log('> Fetching corretoras...')
-        const corretorasSelect = await page.evaluate(() => Array.from(document.querySelectorAll('#ctl00_ContentPlaceHolder1_ddlAgentes'), element => element.innerText.replace(/\t/g,'')))
-        const corretorasArray = corretorasSelect[0].split(/\n/g)
-        const corretoras = []
-        for(let corretora of corretorasArray){
+    async function getAllBrokers(page){
+        console.log('> Fetching brokers...')
+        const brokersSelect = await page.evaluate(() => Array.from(document.querySelectorAll('#ctl00_ContentPlaceHolder1_ddlAgentes'), element => element.innerText.replace(/\t/g,'')))
+        const brokersArray = brokersSelect[0].split(/\n/g)
+        const brokers = []
+        for(let broker of brokersArray){
             
-            if(corretora != 'Selecione'){
-                corretoras.push({
-                    value: corretora.split('-')[0].trim(),
-                    name: corretora.split('-')[1].trim()
+            if(broker != 'Selecione'){
+                brokers.push({
+                    value: broker.split('-')[0].trim(),
+                    name: broker.split('-')[1].trim()
                 })
             }
         }
-        return corretoras
+        return brokers
     }
     
-    async function fetchAssets(page, corretoras){
+    async function fetchAssets(page, brokers){
         console.log('> Fetching your assets...')
         const content = []
-        for(let corretora of corretoras){
-            console.log(`> Fetching from ${corretora.name}...`)
+        for(let broker of brokers){
+            console.log(`> Fetching from ${broker.name}...`)
             await navigateToAssets(page)
-            await page.select('#ctl00_ContentPlaceHolder1_ddlAgentes',corretora.value)
+            await page.select('#ctl00_ContentPlaceHolder1_ddlAgentes',broker.value)
             await page.click('#ctl00_ContentPlaceHolder1_btnConsultar')
             await page.waitFor(3000)
             
             content.push({
-                corretora: corretora.name,
+                broker: broker.name,
                 table:
                 await page.evaluate(
                     () => Array.from(
