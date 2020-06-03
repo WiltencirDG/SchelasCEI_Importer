@@ -1,0 +1,22 @@
+{
+  "name": "schelascei_importer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WiltencirDG/SchelasCEI_Importer.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/WiltencirDG/SchelasCEI_Importer/issues"
+  },
+  "homepage": "https://github.com/WiltencirDG/SchelasCEI_Importer#readme",
+  "dependencies": {
+    "puppeteer": "^3.3.0"
+  }
+}
