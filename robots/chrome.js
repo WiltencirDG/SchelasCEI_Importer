@@ -45,10 +45,10 @@ async function robot(){
 
         }catch(error){
             console.log('> Sadly, B3 is unavailable right now. Please, try again soon!')
-            process.exit(0)
+            throw new Error('unavailable')
         }
 
-        console.timeLog('Took')
+        console.timeEnd('Took')
         console.log('> You\'re logged in.')
     }
     
@@ -114,7 +114,7 @@ async function robot(){
         const brokers = assets.map((asset) => {return asset.broker})
         let assetsFiltered 
         for(let broker of brokers){
-            console.log(broker)
+           
             assetsFiltered = assets.filter((asset) => asset.broker == broker).map((asset) => {return asset.table})
             
             if(assetsFiltered[0].length != 0){
@@ -143,7 +143,7 @@ async function robot(){
     }
 
     async function closeChrome(chrome){
-        console.log('Closing Google Chrome...')
+        console.log('> Closing Google Chrome...')
         await chrome.close()
     }
 }

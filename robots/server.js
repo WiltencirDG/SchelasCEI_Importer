@@ -15,7 +15,7 @@ async function robot(){
                 if(error){
                     reject(error)
                 }
-                console.log(`Server now running on: ${server.address().address}:${port}`);
+                console.log(`> Server now running on: ${server.address().address}:${port}`);
                 resolve(server)
             });
 
