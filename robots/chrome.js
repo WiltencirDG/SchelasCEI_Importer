@@ -12,8 +12,9 @@ async function robot(){
     await navigateToAssets(page)
     const brokers = await getAllBrokers(page)
     const assets = await fetchAssets(page, brokers)
-    state.save(assets)
-    //await organizeAssets(assets)
+    state.save_raw(assets)
+    const content = await organizeAssets(assets)
+    state.save(content)
     await closeChrome(chrome)
 
     async function openChrome(){
@@ -36,15 +37,24 @@ async function robot(){
         await page.type('#ctl00_ContentPlaceHolder1_txtLogin', ceiCredentials.cpf);
         await page.type('#ctl00_ContentPlaceHolder1_txtSenha', ceiCredentials.pass);
 
+        
+        console.time('Took')
         await page.click('#ctl00_ContentPlaceHolder1_btnLogar');
-        
-        await page.waitForNavigation({timeout: 50000});
-        
+    
+        try{
+            await page.waitForNavigation({timeout: 100000});
+
+        }catch(error){
+            console.log('> Sadly, B3 is unavailable right now. Please, try again soon!')
+            process.exit(0)
+        }
+
+        console.timeLog('Took')
         console.log('> You\'re logged in.')
     }
     
     async function navigateToAssets(page){
-        await page.goto('https://cei.b3.com.br/CEI_Responsivo/negociacao-de-ativos.aspx')
+        await page.goto('https://cei.b3.com.br/CEI_Responsivo/negociacao-de-ativos.aspx', {timeout: 50000})
     }
     
     async function getAllBrokers(page){
@@ -74,17 +84,62 @@ async function robot(){
             await page.click('#ctl00_ContentPlaceHolder1_btnConsultar')
             await page.waitFor(3000)
             
-            content.push({
-                broker: broker.name,
-                table:
-                await page.evaluate(
+            let table = []
+
+            try{
+                table = await page.evaluate(
                     () => Array.from(
-                        document.querySelectorAll('table > tbody > tr'),
+                        document.querySelector('table').querySelectorAll('tbody > tr'),
                         row => Array.from(row.querySelectorAll('th, td'), cell => cell.innerText)
                     ))
+
+                console.log(`> ${table.length} results for ${broker.name}.`)
+
+            }catch(error){
+                console.log(`> No results for ${broker.name}.`)
+            }
+
+            content.push({
+                broker: broker.name,
+                table                
             })
         }
         
+        return content
+    }
+
+    async function organizeAssets(assets){
+        console.log('> Organizing your assets...')
+        const content = []
+       
+        const brokers = assets.map((asset) => {return asset.broker})
+        let assetsFiltered 
+        for(let broker of brokers){
+            console.log(broker)
+            assetsFiltered = assets.filter((asset) => asset.broker == broker).map((asset) => {return asset.table})
+            
+            if(assetsFiltered[0].length != 0){
+                for( let assetIndex = 0; assetIndex < assetsFiltered[0].length; assetIndex++){
+                    let asset = assetsFiltered[0][assetIndex]
+                    content.push({
+                        corretora: broker,
+                        entries: {
+                            data: asset[0],
+                            tipo: asset[1],
+                            acao: asset[4],
+                            quantidade: asset[6],
+                            preco: asset[7],
+                            total: asset[8]
+                        }
+                    })
+                }
+            }else{
+                content.push({
+                    corretora: broker,
+                    entries: {}
+                })
+            }
+        }
         return content
     }
 
