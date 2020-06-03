@@ -1,23 +1,23 @@
 const schedule = require('node-schedule');
 const chrome = require('./chrome.js')
 
-async function robot(){
+async function robot(base64Credentials){
 
     const rule = new schedule.RecurrenceRule();
     rule.dayOfWeek = [0, new schedule.Range(1, 5)];
     rule.hour = 10;
     rule.minute = 0;
     
-    await scheduleReading(rule)
+    await scheduleReading(rule,base64Credentials)
 
-    async function scheduleReading(rule){
+    async function scheduleReading(rule,base64Credentials){
         let scheduledJob
         schedule.scheduleJob(rule, async () => {
             try {
                 if(scheduledJob){
                     scheduledJob.cancel()
                 }
-                await chrome()
+                await chrome(base64Credentials)
 
                 console.log(`> Job ran successfully.`)
 

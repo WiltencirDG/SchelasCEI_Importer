@@ -18,12 +18,12 @@ async function robot(ceiCredentials){
         const chrome = await puppeteer.launch({'args' : [
             '--no-sandbox',
             '--disable-setuid-sandbox'
-          ]})
+          ],timeout: 60000})
         return chrome
     }   
 
     async function openNewPage(chrome){
-        const page = await chrome.newPage()
+        const page = await chrome.newPage({timeout: 60000})
         return page
     }
 
@@ -41,7 +41,7 @@ async function robot(ceiCredentials){
         await page.click('#ctl00_ContentPlaceHolder1_btnLogar');
     
         try{
-            await page.waitForNavigation({timeout: 100000});
+            await page.waitForNavigation({timeout: 120000});
 
         }catch(error){
             console.timeEnd('Took')
@@ -54,7 +54,7 @@ async function robot(ceiCredentials){
     }
     
     async function navigateToAssets(page){
-        await page.goto('https://cei.b3.com.br/CEI_Responsivo/negociacao-de-ativos.aspx', {timeout: 50000})
+        await page.goto('https://cei.b3.com.br/CEI_Responsivo/negociacao-de-ativos.aspx', {timeout: 60000})
     }
     
     async function getAllBrokers(page){

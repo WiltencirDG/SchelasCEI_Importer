@@ -46,7 +46,7 @@ async function robot(){
                 try{
                     content = await chrome(credentials)
                     state.save_api(content,base64Credentials)
-                    await scheduler()
+                    await scheduler(base64Credentials)
                 }catch(error){
                     console.log(`Error: ${error}`)
                     return res.status(401).json({ message: 'Service unavailable'});
