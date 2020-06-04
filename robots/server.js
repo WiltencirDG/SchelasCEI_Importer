@@ -42,7 +42,7 @@ async function robot(){
         return client
     }
 
-    async function apiCalls(app,client){
+    async function apiCalls(app){
         app.get("/index.js", async (req, res) => {
             
             if (!req.headers.authorization || req.headers.authorization.indexOf('Basic ') === -1) {
