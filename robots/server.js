@@ -40,8 +40,12 @@ async function robot(){
             } 
             let content
             try{
-                content = state.load_api(base64Credentials)
-                console.log('> Loading from cache...')
+                if(req.query.cache == true || req.query.cache == "true"){
+                    content = state.load_api(base64Credentials)
+                    console.log('> Loading from cache...')
+                }else{
+                    throw new Error('server file')
+                }
             }catch(error){
                 try{
                     content = await chrome(credentials)
