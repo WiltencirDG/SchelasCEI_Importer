@@ -1,6 +1,7 @@
 const port = process.env.PORT || 8080
 const state = require('./state.js')
 const express = require("express");
+const cors = require('cors')
 const chrome = require('./chrome.js')
 const scheduler = require('./scheduler.js')
 
