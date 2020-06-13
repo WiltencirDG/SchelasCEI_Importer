@@ -8,6 +8,8 @@ async function robot(){
 
     const app = express();
     
+    app.use(cors())
+
     await createServer(app)
     await apiCalls(app)   
     
