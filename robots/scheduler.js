@@ -5,7 +5,7 @@ async function robot(base64Credentials){
 
     const rule = new schedule.RecurrenceRule();
     rule.dayOfWeek = [0, new schedule.Range(1, 5)];
-    rule.hour = 10;
+    rule.hour = 23;
     rule.minute = 0;
     
     await scheduleReading(rule,base64Credentials)
