@@ -1,4 +1,4 @@
-const port = process.env.PORT || 8080
+const port = process.env.PORT || 5000
 const state = require('./state.js')
 const express = require("express");
 const cors = require('cors')

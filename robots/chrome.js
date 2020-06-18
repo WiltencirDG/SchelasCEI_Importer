@@ -82,7 +82,8 @@ async function robot(ceiCredentials){
             await navigateToAssets(page)
             await page.select('#ctl00_ContentPlaceHolder1_ddlAgentes',broker.value)
             await page.click('#ctl00_ContentPlaceHolder1_btnConsultar')
-            await page.waitForNavigation()
+            //await page.waitForNavigation()
+            await page.waitFor(2500)
             
             let table = []
 
