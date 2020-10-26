@@ -50,7 +50,6 @@ async function robot() {
       let content;
       let broker;
       try {
-        console.log(base64Credentials);
         broker = req.query.broker != null ? req.query.broker : null;
         if (req.query.cache == true || req.query.cache == "true") {
           content = state.load_api(base64Credentials);
