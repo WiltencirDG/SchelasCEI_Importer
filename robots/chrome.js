@@ -1,13 +1,13 @@
 const puppeteer = require('puppeteer')
 
-async function robot(ceiCredentials){
+async function robot(ceiCredentials, pBroker){
         
     const chrome = await openChrome()
     const page = await openNewPage(chrome)
     await navigateToCEI(page)
     await loginToCEI(page)
     await navigateToAssets(page)
-    const brokers = await getAllBrokers(page)
+    const brokers = await getAllBrokers(page, pBroker)
     const assets = await fetchAssets(page, brokers)
     const content = await organizeAssets(assets)
     await closeChrome(chrome)
@@ -57,10 +57,13 @@ async function robot(ceiCredentials){
         await page.goto('https://cei.b3.com.br/CEI_Responsivo/negociacao-de-ativos.aspx', {timeout: 60000})
     }
     
-    async function getAllBrokers(page){
+    async function getAllBrokers(page, pBroker){
         console.log('> Fetching brokers...')
         const brokersSelect = await page.evaluate(() => Array.from(document.querySelectorAll('#ctl00_ContentPlaceHolder1_ddlAgentes'), element => element.innerText.replace(/\t/g,'')))
         const brokersArray = brokersSelect[0].split(/\n/g)
+        if(pBroker){
+            brokersArray = brokersArray.filter((brok) => brok.indexOf(pBroker) > -1)
+        }
         const brokers = []
         for(let broker of brokersArray){
             
