@@ -1,7 +1,8 @@
 const puppeteer = require('puppeteer')
+// const CaptchaSolver = require('captcha-solver')
 
-async function robot(ceiCredentials, pBroker){
-        
+async function robot(ceiCredentials, pBroker) {
+
     const chrome = await openChrome()
     const page = await openNewPage(chrome)
     await navigateToCEI(page)
@@ -13,37 +14,53 @@ async function robot(ceiCredentials, pBroker){
     await closeChrome(chrome)
     return content
 
-    async function openChrome(){
+    async function openChrome() {
         console.log('> Opening Google Chrome...')
-        const chrome = await puppeteer.launch({'args' : [
-            '--no-sandbox',
-            '--disable-setuid-sandbox'
-          ],timeout: 60000})
+        const chrome = await puppeteer.launch({
+            'args': [
+                '--no-sandbox',
+                '--disable-setuid-sandbox'
+            ], timeout: 60000
+            , headless: false
+        })
         return chrome
-    }   
+    }
 
-    async function openNewPage(chrome){
-        const page = await chrome.newPage({timeout: 60000})
+    async function openNewPage(chrome) {
+        const page = await chrome.newPage({ timeout: 60000 })
         return page
     }
 
-    async function navigateToCEI(page){        
-        await page.goto('https://cei.b3.com.br/CEI_Responsivo/', {waitUntil: 'networkidle2'});
+    async function navigateToCEI(page) {
+        await page.goto('https://cei.b3.com.br/CEI_Responsivo/', { waitUntil: 'networkidle2' });
     }
 
-    async function loginToCEI(page){
+    async function loginToCEI(page) {
         console.log('> Logging in to B3...')
         await page.type('#ctl00_ContentPlaceHolder1_txtLogin', ceiCredentials.cpf);
         await page.type('#ctl00_ContentPlaceHolder1_txtSenha', ceiCredentials.pass);
 
-        
         console.time('Took')
-        await page.click('#ctl00_ContentPlaceHolder1_btnLogar');
-    
-        try{
-            await page.waitForNavigation({timeout: 120000});
 
-        }catch(error){
+        await page.waitForSelector('#ctl00_ContentPlaceHolder1_dvCaptcha div div iframe')
+
+        await page.waitFor(2000)
+
+        // const elementHandle = await page.$('#ctl00_ContentPlaceHolder1_dvCaptcha>div>div>iframe',)
+        // const frame = await elementHandle.contentFrame()
+
+        // frame.click('#recaptcha-anchor>div')
+
+        // const solver = new CaptchaSolver('reCAPTCHA')
+        // const codes = await solver.solve()
+
+        await page.waitFor(2000)
+        await page.click('#ctl00_ContentPlaceHolder1_btnLogar');
+
+        try {
+            await page.waitForNavigation({ timeout: 120000 });
+
+        } catch (error) {
             console.timeEnd('Took')
             console.log('> Sadly, B3 is unavailable right now. Please, try again soon!')
             throw new Error('unavailable')
@@ -52,22 +69,22 @@ async function robot(ceiCredentials, pBroker){
         console.timeEnd('Took')
         console.log('> You\'re logged in.')
     }
-    
-    async function navigateToAssets(page){
-        await page.goto('https://cei.b3.com.br/CEI_Responsivo/negociacao-de-ativos.aspx', {timeout: 60000})
+
+    async function navigateToAssets(page) {
+        await page.goto('https://cei.b3.com.br/CEI_Responsivo/negociacao-de-ativos.aspx', { timeout: 60000 })
     }
-    
-    async function getAllBrokers(page, pBroker){
+
+    async function getAllBrokers(page, pBroker) {
         console.log('> Fetching brokers...')
-        const brokersSelect = await page.evaluate(() => Array.from(document.querySelectorAll('#ctl00_ContentPlaceHolder1_ddlAgentes'), element => element.innerText.replace(/\t/g,'')))
+        const brokersSelect = await page.evaluate(() => Array.from(document.querySelectorAll('#ctl00_ContentPlaceHolder1_ddlAgentes'), element => element.innerText.replace(/\t/g, '')))
         let brokersArray = brokersSelect[0].split(/\n/g)
-        if(pBroker){
+        if (pBroker) {
             brokersArray = brokersArray.filter((brok) => brok.indexOf(pBroker) > -1)
         }
         const brokers = []
-        for(let broker of brokersArray){
-            
-            if(broker != 'Selecione'){
+        for (let broker of brokersArray) {
+
+            if (broker != 'Selecione') {
                 brokers.push({
                     value: broker.split('-')[0].trim(),
                     name: broker.split('-')[1].trim()
@@ -76,21 +93,21 @@ async function robot(ceiCredentials, pBroker){
         }
         return brokers
     }
-    
-    async function fetchAssets(page, brokers){
+
+    async function fetchAssets(page, brokers) {
         console.log('> Fetching your assets...')
         const content = []
-        for(let broker of brokers){
+        for (let broker of brokers) {
             console.log(`> Fetching from ${broker.name}...`)
             await navigateToAssets(page)
-            await page.select('#ctl00_ContentPlaceHolder1_ddlAgentes',broker.value)
+            await page.select('#ctl00_ContentPlaceHolder1_ddlAgentes', broker.value)
             await page.click('#ctl00_ContentPlaceHolder1_btnConsultar')
             //await page.waitForNavigation()
             await page.waitFor(2500)
-            
+
             let table = []
 
-            try{
+            try {
                 table = await page.evaluate(
                     () => Array.from(
                         document.querySelector('table').querySelectorAll('tbody > tr'),
@@ -99,31 +116,31 @@ async function robot(ceiCredentials, pBroker){
 
                 console.log(`> ${table.length} results for ${broker.name}.`)
 
-            }catch(error){
+            } catch (error) {
                 console.log(`> No results for ${broker.name}.`)
             }
 
             content.push({
                 broker: broker.name,
-                table                
+                table
             })
         }
-        
+
         return content
     }
 
-    async function organizeAssets(assets){
+    async function organizeAssets(assets) {
         console.log('> Organizing your assets...')
         const content = []
-       
-        const brokers = assets.map((asset) => {return asset.broker})
-        let assetsFiltered 
-        for(let broker of brokers){
-           
-            assetsFiltered = assets.filter((asset) => asset.broker == broker).map((asset) => {return asset.table})
-            
-            if(assetsFiltered[0].length != 0){
-                for( let assetIndex = 0; assetIndex < assetsFiltered[0].length; assetIndex++){
+
+        const brokers = assets.map((asset) => { return asset.broker })
+        let assetsFiltered
+        for (let broker of brokers) {
+
+            assetsFiltered = assets.filter((asset) => asset.broker == broker).map((asset) => { return asset.table })
+
+            if (assetsFiltered[0].length != 0) {
+                for (let assetIndex = 0; assetIndex < assetsFiltered[0].length; assetIndex++) {
                     let asset = assetsFiltered[0][assetIndex]
                     content.push({
                         corretora: broker,
@@ -137,7 +154,7 @@ async function robot(ceiCredentials, pBroker){
                         }
                     })
                 }
-            }else{
+            } else {
                 content.push({
                     corretora: broker,
                     entries: {}
@@ -147,7 +164,7 @@ async function robot(ceiCredentials, pBroker){
         return content
     }
 
-    async function closeChrome(chrome){
+    async function closeChrome(chrome) {
         console.log('> Closing Google Chrome...')
         await chrome.close()
     }
