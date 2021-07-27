@@ -52,7 +52,7 @@ async function robot(ceiCredentials, pBroker) {
 
         console.time('Took')
 
-        await page.waitFor(500)
+        await page.waitFor(300)
         await page.click('#ctl00_ContentPlaceHolder1_btnLogar');
 
         try {
@@ -101,7 +101,7 @@ async function robot(ceiCredentials, pBroker) {
             await page.select('#ctl00_ContentPlaceHolder1_ddlAgentes', broker.value)
             await page.click('#ctl00_ContentPlaceHolder1_btnConsultar')
             //await page.waitForNavigation()
-            await page.waitFor(1000)
+            await page.waitFor(600)
 
             let table = []
 

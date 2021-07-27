@@ -1,9 +1,7 @@
 const port = process.env.PORT || 5000;
-const state = require("./state.js");
 const express = require("express");
 const cors = require("cors");
 const chrome = require("./chrome.js");
-const scheduler = require("./scheduler.js");
 
 async function robot() {
   const app = express();
@@ -38,7 +36,6 @@ async function robot() {
           .json({ message: "Missing Authorization Header" });
       }
 
-      console.log(req.headers.authorization)
       const base64Credentials = req.headers.authorization.split(" ")[1];
       const credentialsApi = Buffer.from(base64Credentials, "base64").toString(
         "ascii"
@@ -52,26 +49,14 @@ async function robot() {
       let broker;
       try {
         broker = req.query.broker != null ? req.query.broker : null;
-        if (req.query.cache == true || req.query.cache == "true") {
-          content = state.load_api(base64Credentials);
-          console.log("> Loading from cache...");
-        } else {
-          throw new Error("server file");
-        }
+        content = await chrome(credentials, broker);
+        res.set({ "content-type": "application/json; charset=utf-8" });
+        res.statusCode = 200;
+        res.end(JSON.stringify(content));
       } catch (error) {
-        try {
-          content = await chrome(credentials, broker);
-          state.save_api(content, base64Credentials);
-          await scheduler(base64Credentials);
-        } catch (error) {
-          console.log(`Error: ${error}`);
-          return res.status(401).json({ message: "Service unavailable" });
-        }
+        console.log(`Error: ${error}`);
+        return res.status(503).json({ message: "Service unavailable" });
       }
-
-      res.set({ "content-type": "application/json; charset=utf-8" });
-      res.statusCode = 200;
-      res.end(JSON.stringify(content));
     });
   }
 }
