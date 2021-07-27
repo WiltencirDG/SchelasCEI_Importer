@@ -1,13 +1,11 @@
-
 const robots = {
-    server: require('./robots/server.js'),
-    scheduler: require('./robots/scheduler.js')
+    server: require('./robots/server.js')
 }
 
-async function start(){
+async function start() {
 
     await robots.server()
-    
+
 }
 
 start()
