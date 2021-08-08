@@ -2,7 +2,6 @@ const port = process.env.PORT || 5000;
 const express = require("express");
 const cors = require("cors");
 const chrome = require("./chrome.js");
-const NubankApi = require("nubank-api");
 
 async function robot() {
   const app = express();
