@@ -2,6 +2,7 @@ const port = process.env.PORT || 5000;
 const express = require("express");
 const cors = require("cors");
 const chrome = require("./chrome.js");
+const NubankApi = require("nubank-api");
 
 async function robot() {
   const app = express();
@@ -45,8 +46,10 @@ async function robot() {
         cpf: credentialsApi.split(":")[0],
         pass: credentialsApi.split(":")[1],
       };
+
       let content;
       let broker;
+
       try {
         broker = req.query.broker != null ? req.query.broker : null;
         content = await chrome(credentials, broker);

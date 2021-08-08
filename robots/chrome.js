@@ -76,9 +76,17 @@ async function robot(ceiCredentials, pBroker) {
         console.log('> Fetching brokers...')
         const brokersSelect = await page.evaluate(() => Array.from(document.querySelectorAll('#ctl00_ContentPlaceHolder1_ddlAgentes'), element => element.innerText.replace(/\t/g, '')))
         let brokersArray = brokersSelect[0].split(/\n/g)
+        let newBrokersArray = []
         if (pBroker) {
-            brokersArray = brokersArray.filter((brok) => brok.indexOf(pBroker) > -1)
+            let pBrokers = pBroker.split(',')
+            pBrokers.forEach((br) => {
+                newBrokersArray.push(brokersArray.filter((brok) => brok.indexOf(br) > -1)[0])
+            })
         }
+        if (newBrokersArray.length > 0) {
+            brokersArray = newBrokersArray
+        }
+
         const brokers = []
         for (let broker of brokersArray) {
 
